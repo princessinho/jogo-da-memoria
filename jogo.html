@@ -1,12 +1,110 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-br">
 <head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Jogo da Memória</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      background-color: #f4f4f4;
+    }
+    .game-board {
+      display: grid;
+      grid-template-columns: repeat(5, 100px);
+      grid-gap: 10px;
+    }
+    .card {
+      width: 100px;
+      height: 100px;
+      background-color: #333;
+      border-radius: 8px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      cursor: pointer;
+      color: white;
+      font-size: 24px;
+      font-weight: bold;
+      text-transform: uppercase;
+    }
+    .card.flipped, .card.matched {
+      background-color: #4CAF50;
+      color: white;
+    }
+    .card.matched {
+      cursor: default;
+    }
+  </style>
 </head>
 <body>
-    
+  <div class="game-board"></div>
+
+  <script>
+    const gameBoard = document.querySelector('.game-board');
+    const cards = [];
+    const symbols = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J']; // 10 pares
+    const gameSymbols = [...symbols, ...symbols].sort(() => Math.random() - 0.5); // Embaralha os pares
+
+    // Cria os cartões
+    gameSymbols.forEach(symbol => {
+      const card = document.createElement('div');
+      card.classList.add('card');
+      card.dataset.symbol = symbol;
+      card.textContent = ''; // Inicialmente vazio
+      gameBoard.appendChild(card);
+      cards.push(card);
+    });
+
+    let firstCard = null;
+    let secondCard = null;
+    let lockBoard = false;
+
+    function flipCard(card) {
+      if (lockBoard || card === firstCard || card.classList.contains('matched')) {
+        return;
+      }
+
+      card.classList.add('flipped');
+      card.textContent = card.dataset.symbol;
+
+      if (!firstCard) {
+        firstCard = card;
+      } else {
+        secondCard = card;
+        checkMatch();
+      }
+    }
+
+    function checkMatch() {
+      if (firstCard.dataset.symbol === secondCard.dataset.symbol) {
+        firstCard.classList.add('matched');
+        secondCard.classList.add('matched');
+        resetBoard();
+      } else {
+        lockBoard = true;
+        setTimeout(() => {
+          firstCard.classList.remove('flipped');
+          secondCard.classList.remove('flipped');
+          firstCard.textContent = '';
+          secondCard.textContent = '';
+          resetBoard();
+        }, 1000);
+      }
+    }
+
+    function resetBoard() {
+      [firstCard, secondCard, lockBoard] = [null, null, false];
+    }
+
+    cards.forEach(card => {
+      card.addEventListener('click', () => flipCard(card));
+    });
+  </script>
 </body>
 </html>
